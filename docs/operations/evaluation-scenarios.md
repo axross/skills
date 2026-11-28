@@ -254,7 +254,9 @@ Under `tools/evaluation/scenarios/`, <!-- count:declared-scenarios -->thirty-two
   the agent discovers the competing owners, uses project evidence to fill a gap
   and preserves the supported entry and its evidence. The judges read the final
   export, its root choices and current checkout callers. The revision answer
-  and the sources an export reader can use to verify it have separate verdicts. Its work-account factor
+  and the sources an export reader can use to verify it have separate verdicts.
+  Recovery has one verdict for the local queue decision and one for any
+  fallback that would create an unintended revision. Its work-account factor
   reads the agent’s own messages for a reported change and before/after route.
 
 Fifteen scenarios inspect transcripts. Of their twenty-one transcript factors, ten

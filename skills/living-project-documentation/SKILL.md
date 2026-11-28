@@ -15,9 +15,11 @@ The [OKF v0.3 specification](https://github.com/open-knowledge-format/open-knowl
 defines the bundle format. Here, `docs/` means the project's documentation root.
 
 When migrating a populated collection, start at the project's published entry
-point and follow [Assess the collection](./references/bootstrapping.md#assess-the-collection).
-Consult worked examples when a particular placement or recovery choice is
-unclear. Open the validator instructions when ready to check the edited root.
+point. Follow [Assess the collection](./references/bootstrapping.md#assess-the-collection)
+to edit and verify one reader question at a time, from its original caller to
+the owning passage and the evidence that travels with it. Consult a worked
+example when a specific placement or recovery decision needs one. Run the
+whole-root checks on the integrated checkout and export after the reader checks.
 
 The requirement keywords used in this skill and its references follow
 [RFC 2119](https://www.rfc-editor.org/rfc/rfc2119.html).

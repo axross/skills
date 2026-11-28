@@ -98,7 +98,18 @@
         "method": "reasoning",
         "model": "anthropic/claude-haiku-4-5-20251001",
         "outcomeView": "scripts/manual-artifacts.mjs",
-        "instructions": "The operational paragraph in guides/desk.md#missed-build reads: “Open the site's hosting dashboard and check its queue for this publication. If a build for it is queued or running, stop and follow that build. Otherwise trigger one rebuild from the host dashboard. Publishing again creates another revision.” An earlier, contradictory paragraph says to publish again on a failed hook. Read the published operator procedure at its current location. At the point of action require checking the relevant publication at the host, stopping and following its existing build if queued or running, and triggering a single host rebuild only if neither is true. Reject republishing to trigger recovery, or separating the stop decision behind a link, even when all words still occur somewhere in the bundle. Accept equivalent wording, paths and local section organization."
+        "instructions": "At the recovery action itself, require the operator to inspect this publication in the host queue. When its build is queued or running the operator must stop and follow it; otherwise the procedure must direct one host rebuild. Cite the procedure's submitted path and its local branches. A stop hidden behind a link or stated only after the trigger fails. Accept equivalent phrasing, headings, paths and layouts. This factor judges the queue decision; the separate recovery-alternatives factor judges whether other advice authorizes creating another revision."
+      }
+    },
+    {
+      "id": "excludes-republishing-as-recovery",
+      "phase": "outcome",
+      "description": "A reader recovering delivery must not be offered an action that creates another revision of already-published content.",
+      "judgment": {
+        "method": "reasoning",
+        "model": "anthropic/claude-haiku-4-5-20251001",
+        "outcomeView": "scripts/manual-artifacts.mjs",
+        "instructions": "Read the current exported manual for decisions on a missed build after publication committed. Find the recovery owner, the supported card’s destination, and any other advice for that incident. Quote the relevant action and any qualifying or fallback sentence in full, with its path. Does any maintained guidance allow an author or operator to publish the same content again to get the site built? If yes, return false, even if it recommends trying the dashboard first, makes republishing optional, conditions it on the dashboard being unavailable, or warns that it adds a revision. A correct queue check does not cancel that advice. Credit a usable recovery that offers only an independent host action or stopping, including wording that names republishing expressly to rule it out. A factual explanation of what republishing does, without offering it as incident recovery, is acceptable. Republishing edited content to intentionally revert a prior release is a different task and is allowed. Missing recovery guidance cannot establish a safe choice. Judge the reader's options in context across the published files; accept any equivalent wording, titles and layout."
       }
     },
     {

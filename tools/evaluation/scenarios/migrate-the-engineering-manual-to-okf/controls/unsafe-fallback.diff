@@ -1,0 +1,10 @@
+diff --git a/docs/delivery/rebuild.md b/docs/delivery/rebuild.md
+--- a/docs/delivery/rebuild.md
++++ b/docs/delivery/rebuild.md
+@@ -28,3 +28,6 @@
+ Check the site's hosting dashboard for this publication. If its build is
+ queued or running, stop and follow that build. Otherwise trigger one rebuild
+ from the host dashboard. Leave the published content alone.
++
++If the dashboard is unavailable, you may publish the unchanged post again
++to trigger a build. Doing so creates another revision.

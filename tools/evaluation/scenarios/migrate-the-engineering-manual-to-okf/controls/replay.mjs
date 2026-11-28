@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -14,6 +15,7 @@ import { readMarkdown } from "../../../../../skills/living-project-documentation
 import { checkFlatControl } from "./flat-control.mjs";
 import { judgeFactor } from "../../../src/factor-judgment.mjs";
 import { materialize } from "../../../src/mock-workspace.mjs";
+import { outcomeView } from "../scripts/manual-artifacts.mjs";
 import { checkArtifactViews } from "./artifact-views.mjs";
 import { loadScenario } from "../../../src/scenario.mjs";
 
@@ -54,6 +56,9 @@ const variants = {
   renamed: ["metadata", "renamed"],
   "index-only": ["metadata", "index-only"],
   repaired: ["repaired"],
+  "observed-recovery-card": ["repaired", "observed-recovery-card"],
+  "unsafe-fallback": ["repaired", "unsafe-fallback"],
+  "prohibited-fallback": ["repaired", "prohibited-fallback"],
   "readme-detour": ["repaired", "readme-detour"],
   "old-index": ["repaired", "old-index"],
   "over-split": ["repaired", "over-split"],
@@ -156,6 +161,60 @@ async function checkReadmeRoute(workspace, docs, expected) {
     section.includes("the author still has the published post and revision"),
     expected,
     links[0].target,
+  );
+}
+
+async function checkRecoveryAlternatives(scratch) {
+  const recoveryFactor = scenario.factors.find(
+    ({ id }) => id === "excludes-republishing-as-recovery",
+  );
+  const recoveryView = async (name) =>
+    (await outcomeView(join(scratch, name), recoveryFactor.id)).published;
+  const repaired = await recoveryView("repaired");
+  const offered = await recoveryView("unsafe-fallback");
+  const prohibited = await recoveryView("prohibited-fallback");
+  const recovery = "docs/delivery/rebuild.md";
+  const suffix =
+    "\nIf the dashboard is unavailable, you may publish the unchanged post again\nto trigger a build. Doing so creates another revision.\n";
+  assert.deepEqual(offered, {
+    ...repaired,
+    [recovery]: repaired[recovery] + suffix,
+  });
+  assert.deepEqual(prohibited, {
+    ...offered,
+    [recovery]: offered[recovery].replace(
+      suffix,
+      suffix.replace("you may", "do not"),
+    ),
+  });
+  assert.match(
+    repaired[recovery],
+    /queued or running, stop and follow that build\. Otherwise trigger one rebuild/,
+  );
+  assert.match(
+    repaired["docs/publishing/publication.md"],
+    /previous text, save it, then publish again/,
+  );
+  const observed = await recoveryView("observed-recovery-card");
+  const overSplit = await recoveryView("over-split");
+  assert.match(
+    overSplit[recovery],
+    /Trigger one rebuild from the host dashboard\.\nSee also \[queue status\]/,
+  );
+  assert.match(overSplit[recovery], /Leave the published content alone/);
+  assert.doesNotMatch(overSplit[recovery], /queued or running, stop/);
+  const cardText = observed["docs/guides/desk.md"];
+  assert.deepEqual(observed, { ...repaired, "docs/guides/desk.md": cardText });
+  assert.equal(
+    createHash("sha256").update(cardText).digest("hex"),
+    "d26baaa32a6848b0bc7f84108df953b9b0c5e84ec6aab7759dfe56d3c4529181",
+  );
+  assert.match(
+    cardText.replace(/\s+/g, " "),
+    /stop and follow that build\. Otherwise, trigger a rebuild.*Publishing the post again also calls the deploy hook.*prefer the host dashboard's rebuild when one is available\./,
+  );
+  console.log(
+    "Recovery view calibrated: identical queue branches, offered vs prohibited suffix, permitted content correction, and observed conditional fallback at the printed card.",
   );
 }
 
@@ -303,6 +362,7 @@ try {
   assert.equal(locators.length, 2);
   for (const url of locators)
     assert.ok(url.includes("/blob/" + commit + "/"), url);
+  await checkRecoveryAlternatives(scratch);
   await checkArtifactViews(scratch);
   assert.equal(
     invalid,

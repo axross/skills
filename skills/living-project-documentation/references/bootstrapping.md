@@ -21,27 +21,47 @@ condition.
 
 ## Assess the collection
 
-“What happens after cancellation **with an attempt still running**?” can
-disappear if notes reduce it to “job lifecycle.” For a populated collection,
-use this sequence from the initial inventory through the first edited slice.
-Open the linked references as their decisions arise.
+Before moving files, scan the requested tree, its entry points, and the
+questions in support handoffs and caller comments. Try the published root,
+an actual caller and a contributor placing a neighboring claim. Sketch the
+subjects that would let those readers choose. Keep the original wording
+and starting address of each question in working notes. “Can a cancelled job
+retry while an attempt is running?” loses its limiting case if recorded as
+“job lifecycle.”
 
-1. Scan the tree and its entry points together. Group independent searches
-   for questions, sources and callers. List concrete questions from handoffs,
-   caller comments and adopted decisions, including the case that changes an
-   answer. Try the published root, an actual caller and the contributor's
-   route for placing a neighboring claim. Sketch the subjects those readers need.
-2. Pick one question. One line in working notes can hold its actual starting
-   link, the question its wording asks, its owning passage and evidence. Edit
-   the owner, switch callers and try the original question immediately. For example, follow [the notification rule](../assets/docs-example/notifications.md#rules)
-   to [the cancellation passage](../assets/docs-example/scheduling/outcomes.md#states)
-   and open its evidence for cancellation with retries left.
-3. Answer from the edited page, including its exception or the precise limit
-   of the evidence. Fix the passage now if the answer still requires the
-   author's notes. Repeat for the remaining questions. Run the required
-   [whole-root and export checks](./validators.md) on the integrated changes.
-   If setup stalls, record the failing step and finish the reader checks
-   before spending more time on tooling.
+Work through one question at a time. Close related questions together when
+they share an owner.
+
+1. **Write the answer and its proof together.** While the source is open,
+   put the decision and its limiting case at the owner. If one component
+   produces a result and another transforms or displays it, inspect both ends
+   or a test that exercises the whole path. Attach the evidence to the claim
+   in the same edit. For a docs-only export, use a verified link pinned to
+   the source revision or ship a permitted excerpt with its source path and
+   revision where available. If the sources only support part of the answer, state the
+   supported part and the open question at that passage.
+2. **Replay the original question from its caller.** Find inbound references
+   to retained addresses as well as retired ones. Open each affected caller’s
+   link and read the first passage it reaches. If a procedure answers the
+   question in passing while a specification owns the decision, point that
+   caller directly to the owning section. Keep the procedure's own entry for
+   the operator. For an operation, walk the numbered steps and the prose
+   after them. Identify what has already happened, each action still offered
+   and its side effects. Check a deliberate change separately from recovery.
+3. **Verify the route before starting the next question.** Read the owner as
+   an export recipient and open its cited material without relying on the
+   checkout. In working notes, record the actual first landing, the passage
+   that answers the limiting case, and what the recipient can verify there.
+   Repair a detour, missing citation or unsafe branch while the evidence is
+   still at hand. A genuinely unresolved question can be recorded with the
+   decision it leaves open.
+
+For example, follow the link in [Notification rules](../assets/docs-example/notifications.md#rules)
+to [Job outcomes](../assets/docs-example/scheduling/outcomes.md#states).
+The [shipped excerpt](../assets/docs-example/scheduling/cancellation-evidence.txt)
+shows a running job cancelled with retries left and an empty attempt queue.
+Someone who needs to know when an external process stops writing will find
+that evidence limit at the same passage.
 
 **Guidelines:**
 
