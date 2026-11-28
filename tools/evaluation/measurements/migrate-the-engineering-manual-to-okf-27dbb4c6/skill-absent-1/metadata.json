@@ -1,0 +1,125 @@
+{
+  "scenario": "migrate-the-engineering-manual-to-okf",
+  "condition": "skill-absent",
+  "repetition": 1,
+  "timestamp": "2026-11-28T06:42:56.862Z",
+  "runtime": {
+    "model": "anthropic/claude-sonnet-5",
+    "cliVersion": null,
+    "node": "v26.13.1",
+    "os": "linux",
+    "instrumentCommit": "19f77fc3f4a779a37187353182645b6b84088cfa",
+    "project": {
+      "mock": "inkwell",
+      "tree": "sha256:49694b1173ad24b519856605e4a9e42bfc3d45c89ad6a2b4b9b1c69473d77ec0",
+      "commit": "8ff104e69220f744927b15c89e488ffb05c6da00"
+    },
+    "tools": {
+      "reported": [
+        "Bash",
+        "Edit",
+        "EnterWorktree",
+        "ExitWorktree",
+        "Glob",
+        "Grep",
+        "Monitor",
+        "Read",
+        "ReportFindings",
+        "Skill",
+        "ToolSearch",
+        "Write"
+      ],
+      "allowed": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Skill",
+        "Write"
+      ],
+      "disallowed": [
+        "Agent",
+        "Artifact",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "ListAgents",
+        "ListConnectors",
+        "NotebookEdit",
+        "PushNotification",
+        "ReadNotifications",
+        "RemoteTrigger",
+        "ScheduleWakeup",
+        "SearchMcpRegistry",
+        "SearchPlugins",
+        "SendMessage",
+        "SendUserFile",
+        "ShowOnboardingRolePicker",
+        "SuggestConnectors",
+        "SuggestPluginInstall",
+        "SuggestSkills",
+        "Task",
+        "TaskCreate",
+        "TaskGet",
+        "TaskList",
+        "TaskOutput",
+        "TaskStop",
+        "TaskUpdate",
+        "WebFetch",
+        "WebSearch",
+        "Workflow"
+      ],
+      "disagreements": {
+        "allowedNotSurfaced": [],
+        "deniedButSurfaced": [],
+        "undeclared": [
+          "EnterWorktree",
+          "ExitWorktree",
+          "Monitor",
+          "ReportFindings",
+          "ToolSearch"
+        ]
+      }
+    }
+  },
+  "harness": {
+    "skills": {
+      "technical-document-authoring": "sha256:d785c3c050c3c1e300f5b27699ac1394b55f95c420890b3766e633be7a7908d2"
+    },
+    "agentsMd": true
+  },
+  "task": {
+    "prompt": "We're adopting OKF for our engineering docs. Please migrate them."
+  },
+  "cliExitCode": 0,
+  "turns": 9,
+  "truncated": false,
+  "costUsd": 0.27088710000000005,
+  "usage": {
+    "input": 32,
+    "output": 37,
+    "cacheCreation": 105362,
+    "cacheRead": 296688,
+    "messages": 16
+  },
+  "loadedSkills": [
+    "deep-research",
+    "design-sync",
+    "dataviz",
+    "update-config",
+    "verify",
+    "debug",
+    "code-review",
+    "simplify",
+    "batch",
+    "fewer-permission-prompts",
+    "doctor",
+    "loop",
+    "schedule",
+    "claude-api",
+    "run",
+    "run-skill-generator"
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "scenario": "migrate-the-engineering-manual-to-okf",
+  "measurement": "migrate-the-engineering-manual-to-okf-27dbb4c6",
+  "probeCount": 2,
+  "probeCountByCondition": {
+    "skill-present": 1,
+    "skill-absent": 1
+  },
+  "costUsd": 2.0843393999999997,
+  "factors": [
+    {
+      "id": "selects-the-documentation-skill",
+      "phase": "discovery",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "navigates-and-places-by-subject",
+      "phase": "outcome",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "separates-the-publish-contract-from-recovery",
+      "phase": "outcome",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "answers-the-tied-revisions-question",
+      "phase": "outcome",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "bounds-the-host-deadline",
+      "phase": "outcome",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "retains-the-hook-retry-rationale",
+      "phase": "outcome",
+      "differential": 0,
+      "reason": null
+    },
+    {
+      "id": "keeps-the-host-stop-with-the-action",
+      "phase": "outcome",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "readme-reaches-the-publish-outcome",
+      "phase": "outcome",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "preserves-the-card-and-updates-current-callers",
+      "phase": "outcome",
+      "differential": 1,
+      "reason": null
+    },
+    {
+      "id": "preserves-the-acme-receipt",
+      "phase": "outcome",
+      "differential": 0,
+      "reason": null
+    },
+    {
+      "id": "accounts-for-what-was-reviewed",
+      "phase": "transcript",
+      "differential": 0,
+      "reason": null
+    }
+  ],
+  "comparablePredecessor": null
+}

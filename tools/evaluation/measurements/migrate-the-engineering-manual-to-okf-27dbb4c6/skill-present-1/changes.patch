@@ -1,0 +1,296 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 4d9edba..75cd880 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -63,7 +63,7 @@ site's deploy hook lives on somebody else's infrastructure, and a slow or
+ briefly-down webhook shouldn't cost the author their published content. The
+ API reports whether the deploy actually fired (`deployTriggered`) and the
+ editor tells the author which case they're in, rather than pretending publish
+-either fully succeeded or fully failed. `docs/deploy-hooks.md` has the retry
++either fully succeeded or fully failed. `docs/publishing.md` has the retry
+ policy and the reasoning behind it; read it before changing
+ `server/deploy-hook.ts` or the publish route that calls it.
+ 
+diff --git a/docs/deploy-hooks.md b/docs/deploy-hooks.md
+deleted file mode 100644
+index 0f02d24..0000000
+--- a/docs/deploy-hooks.md
++++ /dev/null
+@@ -1,48 +0,0 @@
+-# Deploy hooks
+-
+-Operational notes on what happens after a post is published — the part that
+-doesn't belong in a code comment because it spans two files (`server/app.ts`
+-and `server/deploy-hook.ts`) and one decision worth explaining once rather
+-than re-deriving at either call site.
+-
+-## What publishing actually does
+-
+-Publishing a post is three steps, in order:
+-
+-1. Write a `revisions` row — a snapshot of the post's title and body at the
+-   moment of publish.
+-2. Flip the post's `status` to `published`.
+-3. Call the site's `deployHookUrl`.
+-
+-The first two are a single logical write and either both happen or neither
+-does. The third is best-effort: a site's deploy hook is usually a webhook on
+-someone else's static host (Vercel, Netlify, and similar all expose one), and
+-those are occasionally slow or briefly unavailable — worth a retry, not worth
+-losing the author's published content over.
+-
+-## Why a failed deploy hook doesn't fail the publish
+-
+-By the time `triggerDeployHook` runs, the post and its revision are already
+-committed. Rolling that back because a webhook timed out would throw away
+-real work over a problem that's usually transient and, worse, outside this
+-app's control entirely. Instead, the publish response carries
+-`deployTriggered: boolean`, and the editor shows the author which case they're
+-in — see `PostEditorPage.tsx`'s toast copy.
+-
+-## The retry policy
+-
+-Three attempts, with a linear backoff between them. That's tuned for "a cold
+-serverless function taking a moment to wake up," not for a target that's
+-genuinely down — three attempts a few hundred milliseconds apart won't save a
+-publish from a deploy hook that's been deleted or misconfigured. When every
+-attempt fails, `deploy-hook.ts` logs the exhaustion at `error` (there's no
+-error tracker on the API side to hand it to instead — see `shared/logger.ts`)
+-and returns `{ ok: false }` rather than throwing, so the route above always
+-gets a definite answer either way.
+-
+-## Rolling back a bad publish
+-
+-There's no unpublish button in this cut of the product. The revision a
+-publish writes is a record of what went out, not an undo mechanism —
+-reverting live content means editing the post back to the previous
+-revision's text and publishing again.
+diff --git a/docs/guides/desk.md b/docs/guides/desk.md
+index 24a7261..85d4cf7 100644
+--- a/docs/guides/desk.md
++++ b/docs/guides/desk.md
+@@ -1,18 +1,25 @@
+-# Desk reference
++---
++type: Procedure
++title: Missed build
++description: Recovering a site that didn't rebuild after a publish whose deploy hook failed.
++---
+ 
+-## Reading history
++# Missed build
+ 
+-Revisions are listed newest first within a post. Draft saves update the post
+-without adding a snapshot.
++Entry condition: a publish reported `deployTriggered: false`. The post is
++already published and its revision already recorded by the time the hook
++runs — a failed hook never undoes either. See
++[what a failed hook does and doesn't do](../publishing.md#what-a-failed-hook-does-and-doesnt-do).
++What's missing is the site's own rebuild.
+ 
+-## Missed build
++1. Open the site's hosting dashboard and check its queue for this
++   publication.
++2. If a build for it is queued or running, stop and follow that build.
++3. Otherwise, trigger one rebuild from the host dashboard directly.
+ 
+-A failed hook undoes the publish. The author should publish the post again.
++The site is caught up once that rebuild finishes. Publishing the post again
++would also retry the hook, but it writes another revision for content that
++hasn't changed — prefer the direct rebuild trigger.
+ 
+-Open the site's hosting dashboard and check its queue for this publication.
+-If a build for it is queued or running, stop and follow that build. Otherwise
+-trigger one rebuild from the host dashboard. Publishing again creates another
+-revision.
+-
+-The [receipt from Acme's release](../receipts/hook-17.txt) is the record used
+-when support reviews that release.
++The [receipt from Acme's release](../receipts/hook-17.txt) is the record
++used when support reviews that release.
+diff --git a/docs/guides/index.md b/docs/guides/index.md
+deleted file mode 100644
+index 3c4745d..0000000
+--- a/docs/guides/index.md
++++ /dev/null
+@@ -1,4 +0,0 @@
+-# Guides
+-
+-- [Deploy hooks](../deploy-hooks.md)
+-- [Desk reference](./desk.md)
+diff --git a/docs/index.md b/docs/index.md
+index 6f56328..ac65eef 100644
+--- a/docs/index.md
++++ b/docs/index.md
+@@ -1,4 +1,11 @@
+-# Engineering manual
++---
++okf_version: "0.3"
++title: Inkwell engineering manual
++description: Publishing, revisions and deploy-hook recovery for Inkwell contributors and support.
++---
+ 
+-- [Specifications](./specs/index.md)
+-- [Guides](./guides/index.md)
++# Inkwell engineering manual
++
++- [Publishing](./publishing.md) — what a publish writes, the deploy-hook contract and retry policy, and why there's no in-app undo.
++- [Revisions](./revisions.md) — what the Revisions screen shows, how it's grouped and ordered.
++- [Missed build](./guides/desk.md) — recovering a site that didn't rebuild after a publish.
+diff --git a/docs/publishing.md b/docs/publishing.md
+new file mode 100644
+index 0000000..d686427
+--- /dev/null
++++ b/docs/publishing.md
+@@ -0,0 +1,53 @@
++---
++type: Specification
++title: Publishing
++description: What a publish writes, the deploy-hook contract an author sees, the retry policy, and why there's no in-app undo.
++---
++
++# Publishing
++
++Publishing a post is three steps, in order:
++
++1. Write a `revisions` row — a snapshot of the post's title and body at the
++   moment of publish.
++2. Flip the post's `status` to `published`.
++3. Call the site's `deployHookUrl`.
++
++The first two are one transaction: either both happen or neither does. The
++third is best-effort. A site's deploy hook is usually a webhook on someone
++else's static host (Vercel, Netlify and similar all expose one), and those
++are occasionally slow or briefly unavailable — worth a retry, not worth
++losing the author's published content over.
++
++## What a failed hook does and doesn't do
++
++By the time the hook call runs, the post and its revision are already
++committed. A failed hook never undoes either: the post stays `published` and
++its revision stays recorded even when every retry fails. See
++[what the Revisions screen shows for a publish like this](./revisions.md#publishing-and-a-failed-hook).
++
++The publish response carries `deployTriggered: boolean`, and the editor
++shows the author which case they're in rather than pretending publish either
++fully succeeded or fully failed.
++
++## Retry policy
++
++The hook gets three attempts, with a linear backoff between them (250ms,
++then 500ms). That's tuned for a cold serverless function taking a moment to
++wake up, not for a target that's genuinely down — three attempts a few
++hundred milliseconds apart won't save a publish from a deploy hook that's
++been deleted or misconfigured. When every attempt fails, the API logs the
++exhaustion at `error` and returns `deployTriggered: false` rather than
++throwing, so the route above always gets a definite answer either way.
++
++This app makes no promise about how long after a successful hook call the
++site itself goes live — that's the host's own build pipeline, which this app
++has no visibility into and no control over.
++
++## There is no unpublish
++
++There's no unpublish action in this cut of the product. The revision a
++publish writes is a record of what went out, not an undo mechanism:
++reverting live content means editing the post back to the previous
++revision's text and publishing again, which writes a new revision rather
++than erasing the old one.
+diff --git a/docs/revisions.md b/docs/revisions.md
+new file mode 100644
+index 0000000..92556ee
+--- /dev/null
++++ b/docs/revisions.md
+@@ -0,0 +1,31 @@
++---
++type: Specification
++title: Revisions
++description: What the Revisions screen shows for a site, how it's grouped and ordered, and what a failed deploy hook leaves behind.
++---
++
++# Revisions
++
++The Revisions screen lists every revision for a site, grouped by the post
++each one belongs to. Each group's heading uses the post's current title;
++each row uses the title that was saved at the moment of that publish, so
++renaming a post afterward doesn't rewrite what an older row says it
++published.
++
++A draft save updates the post without writing a revision. Only a publish
++adds one.
++
++## Ordering
++
++Revisions are listed newest first within a post. Two publishes in the same
++second are ordinary — the API breaks the tie by revision id, descending, so
++the more recently written revision still sorts first even when its
++timestamp exactly matches an earlier one.
++
++## Publishing and a failed hook
++
++A post becomes `published` together with the revision that snapshots it, in
++one transaction. A failed deploy hook doesn't touch either: the post stays
++published and its revision stays in place even when the site itself didn't
++rebuild. See [the publish contract and what a failed hook means](./publishing.md#what-a-failed-hook-does-and-doesnt-do)
++and [recovering a missed build](./guides/desk.md).
+diff --git a/docs/specs/index.md b/docs/specs/index.md
+deleted file mode 100644
+index 1e3ce6d..0000000
+--- a/docs/specs/index.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Specifications
+-
+-- [Post records](./post-records.md)
+diff --git a/docs/specs/post-records.md b/docs/specs/post-records.md
+deleted file mode 100644
+index 4b2b0ea..0000000
+--- a/docs/specs/post-records.md
++++ /dev/null
+@@ -1,7 +0,0 @@
+-# Post records
+-
+-The revisions list groups snapshots by post. Each heading uses the post's
+-current title. Each row uses the title saved at publication.
+-
+-A post becomes published with its snapshot. A failed deploy hook leaves
+-the published post and its revision in place.
+diff --git a/server/app.ts b/server/app.ts
+index 809a401..4faa45d 100644
+--- a/server/app.ts
++++ b/server/app.ts
+@@ -115,7 +115,7 @@ export function createApp(db: Db) {
+   });
+ 
+   // Publishing writes a revision snapshot, flips the post to "published",
+-  // and calls the site's deploy hook — see docs/deploy-hooks.md for what
++  // and calls the site's deploy hook — see docs/publishing.md for what
+   // happens when that last step fails.
+   app.post("/sites/:siteSlug/posts/:postId/publish", async (c) => {
+     const site = await findSiteBySlug(db, c.req.param("siteSlug"));
+diff --git a/server/db/queries.test.ts b/server/db/queries.test.ts
+index a8eed8f..4dbdf35 100644
+--- a/server/db/queries.test.ts
++++ b/server/db/queries.test.ts
+@@ -72,7 +72,7 @@ describe("the sites/posts/revisions schema", () => {
+   });
+ 
+   // The publish route depends on this: it writes the snapshot and flips the
+-  // post's status inside one transaction, and docs/deploy-hooks.md promises
++  // post's status inside one transaction, and docs/publishing.md promises
+   // either both happen or neither does.
+   it("leaves no revision behind when the write it belongs to fails part-way", async () => {
+     const [site] = await db
+diff --git a/vite.config.ts b/vite.config.ts
+index 7ed6bbd..b0ceb9a 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
+ // The Sentry plugin only runs when a build-time auth token is present, the
+ // same way most CI pipelines gate it: a local build with no token still
+ // produces working output, it just doesn't upload anything. See
+-// docs/deploy-hooks.md for the pattern this mirrors on the API side.
++// docs/publishing.md for the pattern this mirrors on the API side.
+ const sentryPlugin = process.env.SENTRY_AUTH_TOKEN
+   ? sentryVitePlugin({
+       org: process.env.SENTRY_ORG ?? "inkwell",
