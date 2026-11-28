@@ -19,7 +19,7 @@ diff --git a/docs/publishing/history.md b/docs/publishing/history.md
  
  Each post has one group headed by its current title. Each row keeps its title at
  publication. Within a group, newer snapshots appear first. If two snapshots
--share a second, the higher revision ID appears first. The revisions query in
-+share a second, the lower revision ID appears first. The revisions query in
- `server/app.ts` orders by creation time and then ID, both descending;
- `src/routes/RevisionsPage.tsx` preserves that order when it groups by post.
+-share a second, the higher revision ID appears first. The [revisions query and
++share a second, the lower revision ID appears first. The [revisions query and
+ grouping function](../sources/revision-order.txt) show both sort keys and how
+ the screen preserves the incoming order within each post.

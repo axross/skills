@@ -13,17 +13,18 @@ diff --git a/AGENTS.md b/AGENTS.md
 diff --git a/README.md b/README.md
 --- a/README.md
 +++ b/README.md
-@@ -3,7 +3,8 @@
+@@ -3,7 +3,9 @@
  A small hosted CMS: an author manages one or more customer sites, works
  through a site's posts, and publishes one. Publishing writes a revision and
  calls the site's deploy hook. See `AGENTS.md` for the shape of the product and
 -`docs/deploy-hooks.md` for what happens after Publish is clicked.
 +[the engineering manual](docs/index.md) for publishing and delivery. The manual ships
-+as the contents of `docs/`. Support records are under `support/`.
++as the contents of `docs/`. Short excerpts from our own source and tests may
++ship in the manual with their source path and revision. Support records are under `support/`.
  
  ## Getting started
  
-@@ -57,8 +58,7 @@
+@@ -57,8 +59,7 @@
    migrations under `server/db/migrations/`.
  - `shared/` — code imported by both the SPA and the API. Just the logger
    today.

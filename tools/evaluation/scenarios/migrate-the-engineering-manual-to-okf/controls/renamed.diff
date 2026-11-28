@@ -1,8 +1,8 @@
 diff --git a/README.md b/README.md
-index 14b2cd3..9429956 100644
+index db12dc4..af89581 100644
 --- a/README.md
 +++ b/README.md
-@@ -60,3 +60,3 @@ it falls back to a development author so the console still knows who you are.
+@@ -61,3 +61,3 @@ it falls back to a development author so the console still knows who you are.
    today.
 -- `docs/` — [what a failed hook means for a published revision](docs/guides/desk.md#missed-build).
 +- `docs/` — [what a failed hook means for a published revision](docs/delivery/desk.md#missed-build).

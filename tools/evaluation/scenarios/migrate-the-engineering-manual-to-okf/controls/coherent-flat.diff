@@ -10,10 +10,10 @@ index ad3265c..3813e17 100644
 +for changes to `server/deploy-hook.ts`, read [hook delivery](docs/delivery.md#hook-delivery).
  The [engineering manual](docs/index.md) explains where to record changes.
 diff --git a/README.md b/README.md
-index 182cd56..2418231 100644
+index 6ba3271..64e7e9c 100644
 --- a/README.md
 +++ b/README.md
-@@ -60,3 +60,3 @@ it falls back to a development author so the console still knows who you are.
+@@ -61,3 +61,3 @@ it falls back to a development author so the console still knows who you are.
    today.
 -- `docs/` — [what a failed hook means for a published revision](docs/publishing/publication.md#if-the-hook-fails).
 +- `docs/` — [what a failed hook means for a published revision](docs/publication.md#if-the-hook-fails).
@@ -44,9 +44,17 @@ index 7cf37bf..dd80682 100644
 -[Recover a missed build](../delivery/rebuild.md#recover-a-missed-build).
 +[Recover a missed build](../delivery.md#recover-a-missed-build).
 diff --git a/docs/publishing/history.md b/docs/history.md
-similarity index 100%
+similarity index 85%
 rename from docs/publishing/history.md
 rename to docs/history.md
+index b16a990..b58f51a 100644
+--- a/docs/publishing/history.md
++++ b/docs/history.md
+@@ -11,3 +11,3 @@ publication. Within a group, newer snapshots appear first. If two snapshots
+ share a second, the higher revision ID appears first. The [revisions query and
+-grouping function](../sources/revision-order.txt) show both sort keys and how
++grouping function](./sources/revision-order.txt) show both sort keys and how
+ the screen preserves the incoming order within each post.
 diff --git a/docs/index.md b/docs/index.md
 index be99e9c..44fd339 100644
 --- a/docs/index.md

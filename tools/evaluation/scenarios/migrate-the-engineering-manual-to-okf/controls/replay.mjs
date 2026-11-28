@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadDocs } from "../../../../../skills/living-project-documentation/scripts/docs.mjs";
+import { checkFlatControl } from "./flat-control.mjs";
 import { judgeFactor } from "../../../src/factor-judgment.mjs";
 import { materialize } from "../../../src/mock-workspace.mjs";
 import { loadScenario } from "../../../src/scenario.mjs";
@@ -53,7 +54,7 @@ const variants = {
   staged: ["metadata", "staged"],
   "stale-callers": ["repaired", "stale-callers"],
   "missing-rationale": ["repaired", "missing-rationale"],
-  "coherent-flat": ["repaired", "coherent-flat"],
+  "checkout-only": ["repaired", "checkout-only"],
 };
 
 const permittedPages = [
@@ -120,6 +121,71 @@ async function checkCallerRoutes(workspace, docs, name, repaired) {
   }
 }
 
+async function checkStructure(workspace, name) {
+  const report = execFileSync(
+    process.execPath,
+    [checker, "--validator", validator, "docs"],
+    { cwd: workspace, encoding: "utf8" },
+  );
+  await writeFile(join(scratch, name + ".log"), report);
+}
+
+async function checkOrderEvidence(docs, expected) {
+  const owner = docs.documents.find((page) =>
+    /(?:higher|lower) revision\s+ID (?:appears|comes) first/.test(page.text),
+  );
+  const evidence = owner?.links.find((link) =>
+    link.target.endsWith("revision-order.txt"),
+  );
+  assert.equal(Boolean(evidence), expected, "exported source link");
+  if (!evidence) return;
+
+  const contents = await readFile(
+    resolve(dirname(owner.path), evidence.target),
+    "utf8",
+  );
+  const sections = contents.trimEnd().split(/(?=^Source: )/m);
+  const sources = [
+    [
+      "server/app.ts",
+      [".orderBy(desc(revisions.createdAt), desc(revisions.id))"],
+    ],
+    [
+      "src/routes/RevisionsPage.tsx",
+      [
+        "for (const revision of revisions)",
+        "group.revisions.push(revision)",
+        "revisions: [revision]",
+      ],
+    ],
+  ];
+  assert.equal(sections.length, sources.length);
+  for (const [index, [path, operations]] of sources.entries()) {
+    const blob = execFileSync("git", ["rev-parse", "HEAD:" + path], {
+      cwd: baseline,
+      encoding: "utf8",
+    }).trim();
+    const heading = "Source: " + path + "\nGit blob: " + blob + "\n\n";
+    assert.ok(
+      sections[index].startsWith(heading),
+      path + ": incorrect source identity",
+    );
+    const excerpt = sections[index].slice(heading.length).trimEnd();
+    assert.ok(
+      operations.every((operation) => excerpt.includes(operation)),
+      path + ": missing ordering operation",
+    );
+    const originalText = execFileSync("git", ["cat-file", "blob", blob], {
+      cwd: baseline,
+      encoding: "utf8",
+    });
+    assert.ok(
+      originalText.includes(excerpt),
+      path + ": excerpt differs from cited blob",
+    );
+  }
+}
+
 try {
   for (const [name, patches] of Object.entries(variants)) {
     const workspace = join(scratch, name);
@@ -129,12 +195,7 @@ try {
         cwd: workspace,
       });
     }
-    const report = execFileSync(
-      process.execPath,
-      [checker, "--validator", validator, "docs"],
-      { cwd: workspace, encoding: "utf8" },
-    );
-    await writeFile(join(scratch, name + ".log"), report);
+    await checkStructure(workspace, name);
     const docs = await loadDocs(join(workspace, "docs"), undefined, {
       wholeRoot: true,
     });
@@ -147,6 +208,10 @@ try {
     );
     const repaired = patches[0] === "repaired";
     await checkCallerRoutes(workspace, docs, name, repaired);
+    await checkOrderEvidence(
+      docs,
+      (repaired && name !== "checkout-only") || name === "staged",
+    );
     if (repaired) {
       const retryOwner = docs.documents.find((page) =>
         page.anchors.has("hook-delivery"),
@@ -171,6 +236,22 @@ try {
     );
     console.log(`${name}: structural pass, receipt preserved`);
   }
+  const flat = await checkFlatControl({
+    scratch,
+    setupPatch: join(controls, "coherent-flat.diff"),
+    checkStructure,
+  });
+  await checkOrderEvidence(flat.docs, true);
+  await checkCallerRoutes(flat.workspace, flat.docs, "coherent-flat", true);
+  await checkFactor(
+    receipt,
+    flat.workspace,
+    { diff: "", task: scenario.task },
+    true,
+  );
+  console.log(
+    "coherent-flat: identical input and output; reader, placement, stop and evidence verified",
+  );
   await checkFactor(
     discovery,
     baseline,

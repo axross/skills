@@ -1,0 +1,53 @@
+diff --git a/docs/publishing/history.md b/docs/publishing/history.md
+--- a/docs/publishing/history.md
++++ b/docs/publishing/history.md
+@@ -8,6 +8,4 @@
+ 
+ Each post has one group headed by its current title. Each row keeps its title at
+ publication. Within a group, newer snapshots appear first. If two snapshots
+-share a second, the higher revision ID appears first. The [revisions query and
+-grouping function](../sources/revision-order.txt) show both sort keys and how
+-the screen preserves the incoming order within each post.
++share a second, the higher revision ID appears first. See `server/app.ts` and `src/routes/RevisionsPage.tsx`.
+diff --git a/docs/sources/revision-order.txt b/docs/sources/revision-order.txt
+deleted file mode 100644
+--- a/docs/sources/revision-order.txt
++++ /dev/null
+@@ -1,37 +0,0 @@
+-Source: server/app.ts
+-Git blob: 809a401cdfa93c861829aa7a894a3737d430adb6
+-
+-    const rows = await db
+-      .select({
+-        id: revisions.id,
+-        postId: revisions.postId,
+-        postTitle: posts.title,
+-        title: revisions.title,
+-        createdAt: revisions.createdAt,
+-      })
+-      .from(revisions)
+-      .innerJoin(posts, eq(revisions.postId, posts.id))
+-      .where(eq(posts.siteId, site.id))
+-      .orderBy(desc(revisions.createdAt), desc(revisions.id));
+-
+-Source: src/routes/RevisionsPage.tsx
+-Git blob: 48eba9efd7d0f95df7f34f5738440d10897f8f86
+-
+-function groupByPost(revisions: readonly Revision[]): PostGroup[] {
+-  const groups = new Map<number, PostGroup>();
+-
+-  for (const revision of revisions) {
+-    const group = groups.get(revision.postId);
+-    if (group) {
+-      group.revisions.push(revision);
+-      continue;
+-    }
+-    groups.set(revision.postId, {
+-      postId: revision.postId,
+-      postTitle: revision.postTitle,
+-      revisions: [revision],
+-    });
+-  }
+-
+-  return [...groups.values()];
+-}

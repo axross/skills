@@ -86,7 +86,7 @@ roll back can choose “Operating a release.” Try both routes in the
 **Guidelines:**
 
 - SHOULD sketch the smallest tree that answers the observed questions. Name each subject in the project's language and say which decisions it owns. Choose [page types and local indexes](./documentation-structure.md#choose-the-subject) once the owners are clear.
-- SHOULD compare a minimal repair, such as a direct heading link, with a different grouping when ownership is ambiguous. Try a root lookup, a realistic new contribution and the affected caller routes. Weigh the cost of maintaining old entries.
+- SHOULD compare a minimal repair, such as a direct heading link, with a different grouping when ownership is ambiguous. Try a root lookup, [placing a new claim from a contributor entry point](./conventions-and-operations.md#contributor-routes) and the affected caller routes. Weigh the cost of maintaining old entries.
 - MUST account for each affected legacy decision in working notes or the existing change record. Identify what stays, what moves or splits, which claims merge at one owner, and why a page is created or retired.
 - MUST investigate missing answers in implementation, tests, configuration or an adopted decision. Write each supported answer at its owner. Where evidence conflicts or runs out, record the exact question and which decision it leaves open.
 
@@ -120,7 +120,6 @@ with only that destination would give the reader another step.
 
 - MUST reconcile the edited tree with the initial inventory. For staged work, record covered subjects, remaining owners, unresolved questions and cross-package callers in the existing change record. Limit the completion claim to the subjects examined.
 - MUST report [format checks](./validators.md) separately from editorial results. Replay representative questions from the root and callers. For a repaired defect, show the original failure, the edited owner and the route to the complete answer. For a retained layout, identify a working owner, its boundary case and the detour an extra split or directory would introduce.
-- SHOULD link human and agent entry points to the same [placement guidance](./documentation-structure.md#choose-the-subject) when future contributors face a meaningful choice.
 
 ## Preserve evidence identity
 
